@@ -53,7 +53,7 @@
 #define ABORT_BUFFER_SIZE			10
 #define ABORT_BUFFER_ENABLE			true
 // [ INDEX ]
-#define ENABLE_LATCH				false
+#define ENABLE_LATCH				true
 #define CENTRAL_INDEX				false
 #define CENTRAL_MANAGER 			false
 #define INDEX_STRUCT				IDX_BTREE
