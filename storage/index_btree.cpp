@@ -2,6 +2,9 @@
 #include "index_btree.h"
 #include "row.h"
 
+#define DEBUG_PRINT(fmt, args...) fprintf(stderr, "DEBUG: %s:%d:%s(): " fmt "\n", \
+    __FILE__, __LINE__, __func__, ##args);
+
 // ref: Partitioned B-Trees: https://database.cs.wisc.edu/cidr/cidr2003/program/p1.pdf
 RC index_btree::init(uint64_t part_cnt) {
 	this->part_cnt = part_cnt;
@@ -126,7 +129,9 @@ RC index_btree::index_insert(idx_key_t key, itemid_t * item, int part_id) {
 	bt_node * leaf = NULL;
 	bt_node * last_ex = NULL;
 	rc = find_leaf(params, key, INDEX_INSERT, leaf, last_ex);
-	assert(rc == RCOK);
+	if (rc != RCOK) {
+		return rc;
+	}
 	
 	bt_node * tmp_node = leaf;
 	if (last_ex != NULL) {
@@ -150,6 +155,7 @@ RC index_btree::index_insert(idx_key_t key, itemid_t * item, int part_id) {
 	// insert into btree if the leaf is not full
 	if (leaf->num_keys < order - 1 || leaf_has_key(leaf, key) >= 0) {
 		rc = insert_into_leaf(params, leaf, key, item);
+		DEBUG_PRINT("rc=%d", rc)
 		// only the leaf should be ex latched.
 //		assert( release_latch(leaf) == LATCH_EX );
 		for (int i = 0; i < depth; i++)
@@ -157,6 +163,7 @@ RC index_btree::index_insert(idx_key_t key, itemid_t * item, int part_id) {
 //			assert( release_latch(ex_list[i]) == LATCH_EX );
 	} else { // split the nodes when necessary
 		rc = split_lf_insert(params, leaf, key, item);
+		DEBUG_PRINT("2")
 		for (int i = 0; i < depth; i++)
 			release_latch(ex_list[i]);
 //			assert( release_latch(ex_list[i]) == LATCH_EX );
@@ -332,8 +339,10 @@ RC index_btree::find_leaf(glob_param params, idx_key_t key, idx_acc_t access_typ
 		return RCOK;
 	}
 	// key should be inserted into the right side of i
-	if (!latch_node(c, LATCH_SH)) 
+	if (!latch_node(c, LATCH_SH)) {
+		printf("1\n");
 		return Abort;
+	}
 	while (!c->is_leaf) { // traverse downwards
 		assert(get_part_id(c) == params.part_id);
 		assert(get_part_id(c->keys) == params.part_id);
@@ -346,6 +355,7 @@ RC index_btree::find_leaf(glob_param params, idx_key_t key, idx_acc_t access_typ
 			release_latch(c);
 			cleanup(c, last_ex);
 			last_ex = NULL;
+			printf("2\n");
 			return Abort;
 		}	
 		if (access_type == INDEX_INSERT) {
@@ -355,6 +365,7 @@ RC index_btree::find_leaf(glob_param params, idx_key_t key, idx_acc_t access_typ
 					release_latch(child);
 					cleanup(c, last_ex);
 					last_ex = NULL;
+					printf("3\n");
 					return Abort;
 				}
 				if (last_ex == NULL) {
@@ -379,6 +390,7 @@ RC index_btree::find_leaf(glob_param params, idx_key_t key, idx_acc_t access_typ
 		if (upgrade_latch(c) != RCOK) {
 			release_latch(c);
 			cleanup(c, last_ex);
+			printf("4\n");
 			return Abort;
 		}
 	}

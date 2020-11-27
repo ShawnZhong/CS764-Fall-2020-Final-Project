@@ -142,8 +142,12 @@ void * ycsb_wl::init_table_slice() {
 		m_item->valid = true;
 		uint64_t idx_key = primary_key;
 		
-		rc = the_index->index_insert(idx_key, m_item, part_id);
-		assert(rc == RCOK);
+		do {
+			rc = the_index->index_insert(idx_key, m_item, part_id);
+			printf("rc failed on idx_key=%ld, part_id=%d\n", idx_key, part_id);
+			sleep(1);
+		} while (rc != RCOK);
+	
 	}
 	return NULL;
 }
