@@ -1,0 +1,16 @@
+{
+    "tasks": [
+        {
+            "label": "build",
+            "command": "/usr/bin/make",
+            "args": [
+                "-j",
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+        }
+    ],
+    "version": "2.0.0"
+}
