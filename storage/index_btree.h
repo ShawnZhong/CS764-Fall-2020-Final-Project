@@ -65,7 +65,7 @@ private:
 	RC		 	upgrade_latch(bt_node * node);
 	// clean up all the LATCH_EX up tp last_ex
 	RC 			cleanup(bt_node * node, bt_node * last_ex);
-
+	void		print_btree(bt_node * start);
 	// the leaf and the idx within the leaf that the thread last accessed.
 	bt_node *** cur_leaf_per_thd;
 	UInt32 ** 		cur_idx_per_thd;
