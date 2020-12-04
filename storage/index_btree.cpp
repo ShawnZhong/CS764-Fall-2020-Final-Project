@@ -342,8 +342,8 @@ RC index_btree::find_leaf(glob_param params, idx_key_t key, idx_acc_t access_typ
 		return Abort;
 	}
 	while (!c->is_leaf) { // traverse downwards
-		assert(get_part_id(c) == params.part_id);
-		assert(get_part_id(c->keys) == params.part_id);
+		//assert(get_part_id(c) == params.part_id);
+		//assert(get_part_id(c->keys) == params.part_id);
 		for (i = 0; i < c->num_keys; i++) {
 			if (key < c->keys[i])
 				break;
