@@ -1,0 +1,103 @@
+//
+// Created by Libin Zhou on 5/16/20.
+//
+
+#ifndef DBX1000_WIKIPEDIA_CONST_H
+#define DBX1000_WIKIPEDIA_CONST_H
+
+#endif //DBX1000_WIKIPEDIA_CONST_H
+
+enum{
+    UA_UID,
+    UA_USER_NAME,
+    UA_REAL_NAME,
+    UA_PASSWORD,
+    UA_NEWPASSWORD,
+    UA_NEWPASS_TIME,
+    UA_USER_EMAIL,
+    UA_USER_OPTIONS,
+    UA_USER_TOUCHED,
+    UA_USER_TOKEN,
+    UA_USER_EMAIL_AUTHENTICATED,
+    UA_EMAIL_TOKEN,
+    UA_USER_EMAIL_TOKEN_EXPIRES,
+    UA_USER_REGISTRATION,
+    UA_USER_EDIYCOUNT
+};
+
+enum{
+    PID,
+    P_PAGE_NAMESPACE,
+    P_PAGE_TITLE,
+    P_PAGE_RESTRICTIONS,
+    P_PAGE_COUNTER,
+    P_PAGE_IS_REDIRECT,
+    P_PAGE_IS_NEW,
+    P_PAGE_RANDOM,
+    P_PAGE_TOUCHED,
+    P_PAGE_LATEST,
+    P_PAGE_LEN
+};
+
+enum{
+    WL_NOTIFICATION_TIMESTAMP,
+    WL_NS,
+    WL_TITLE,
+    WL_UID
+};
+
+enum{
+    T_TID,
+    T_OLD_TEXT,
+    T_OLD_FLAGS,
+    T_OLD_PAGE
+};
+enum{
+    R_RID,
+    R_PAGE,
+    R_TEXT_ID,
+    R_COMMENT,
+    R_USER,
+    R_USER_TEXT,
+    R_TIMESTAMP,
+    R_MINOR_EDIT,
+    R_DELETEED,
+    R_LEN,
+    R_PARENT_ID
+};
+enum{
+    RC_KEY,
+    RC_TIMESTAMP,
+    RC_CURRENT_TIME,
+    RC_NAMESPACE,
+    RC_TITLEE,
+    RC_TYPE,
+    RC_MINOR,
+    RC_CUR_ID,
+    RC_USER,
+    RC_USER_TEXT,
+    RC_COMMENT,
+    RC_THIS_OLDID,
+    RC_LAST_OLDID,
+    RC_BOT,
+    RC_MOVED_TO_NS,
+    RC_MOVED_TO_TITLE,
+    RC_IP,
+    RC_OLD_LEN,
+    RC_NEW_LEN
+};
+
+enum{
+    L_KEY,
+    L_TYPE,
+    L_ACTION,
+    L_TIMESTAMP,
+    L_USER,
+    L_NAMESPACE,
+    L_TITLE,
+    L_COMMENT,
+    L_PARAMS,
+    L_DELETED,
+    L_USER_TEXT,
+    L_PAGE
+};
