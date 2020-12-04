@@ -121,7 +121,16 @@ void workload::index_insert(INDEX * index, uint64_t key, row_t * row, int64_t pa
 	m_item->location = row;
 	m_item->valid = true;
 
-    assert( index->index_insert(key, m_item, pid) == RCOK );
+	RC rc;
+	do {
+		rc = index->index_insert(key, m_item, pid);
+		if (rc != RCOK) {
+			printf("rc failed on key=%ld, pid=%ld\n", key, pid);
+			sleep(1);
+		}
+	} while (rc != RCOK);
+
+    // assert( index->index_insert(key, m_item, pid) == RCOK );
 }
 
 

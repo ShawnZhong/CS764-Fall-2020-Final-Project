@@ -46,8 +46,6 @@ public:
 	uint64_t ol_delivery_d;
 	// for order-status
 
-	//for stock level
-	uint64_t s_thres;
 
 private:
 	// warehouse id to partition id mapping
@@ -55,10 +53,6 @@ private:
 	void gen_payment(uint64_t thd_id);
 	void gen_new_order(uint64_t thd_id);
 	void gen_order_status(uint64_t thd_id);
-
-    void gen_delivery(uint64_t thd_id);
-
-    void gen_stock_level(uint64_t thd_id);
 };
 
 #endif
