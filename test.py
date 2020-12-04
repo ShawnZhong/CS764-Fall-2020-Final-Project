@@ -11,19 +11,31 @@ def replace(filename, pattern, replacement):
 	f.write(s)
 	f.close()
 
-jobs = {}
-dbms_cfg = ["config-std.h", "config.h"]
-algs = ['DL_DETECT', 'NO_WAIT', 'HEKATON', 'SILO', 'TICTOC']
-def insert_job(alg, workload):
-	jobs[alg + '_' + workload] = {
-		"WORKLOAD"			: workload,
-		"CORE_CNT"			: 4,
-		"CC_ALG"			: alg,
-	}
 
+dbms_cfg = ["config-std.h", "config.h"]
+
+
+# test config: 
+algs = ['DL_DETECT', 'NO_WAIT', 'HEKATON', 'SILO', 'TICTOC']
+indices=['INDEX_BTREE','INDEX_HASH']
+num_threads_lst = [2 ** n for n in range(1, 8)]
+workloads = ["YCSB", "TPCC"]
+
+jobs = {}
+
+for workload in workloads:
+	for alg in algs:
+		for index in indices:
+			for num_threads in num_threads_lst: 
+				jobs[f"{workload}_{alg}_{index}_{num_threads}"] = {
+					"WORKLOAD"			: workload,
+					"CORE_CNT"			: num_threads,
+					"CC_ALG"			: alg,
+					"Index"				: index
+				}
 
 def test_compile(job):
-	os.system("cp "+ dbms_cfg[0] +' ' + dbms_cfg[1])
+	os.system("cp " + dbms_cfg[0] + ' ' + dbms_cfg[1])
 	for (param, value) in job.iteritems():
 		pattern = r"\#define\s*" + re.escape(param) + r'.*'
 		replacement = "#define " + param + ' ' + str(value)
@@ -34,7 +46,7 @@ def test_compile(job):
 		print "ERROR in compiling job="
 		print job
 		exit(0)
-	print "PASS Compile\t\talg=%s,\tworkload=%s" % (job['CC_ALG'], job['WORKLOAD'])
+	print "PASS Compile\t\tworkload=%s,\t CORE_CNT=, \talg=%s, \tIndex=, " % (job['WORKLOAD'], job['CORE_CNT'], job['CC_ALG'], job['Index'])
 
 def test_run(test = '', job=None):
 	app_flags = ""
@@ -47,6 +59,7 @@ def test_run(test = '', job=None):
 	#cmd = "./rundb %s > temp.out 2>&1" % app_flags
 	cmd = "./rundb %s" % (app_flags)
 	start = datetime.datetime.now()
+	ww
 	process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	timeout = 10 # in second
 	while process.poll() is None:
@@ -70,12 +83,6 @@ def test_run(test = '', job=None):
 
 def run_all_test(jobs) :
 	for (jobname, job) in jobs.iteritems():
-		test_compile(job)
-		if job['WORKLOAD'] == 'TEST':
-			test_run('read_write', job)
-			#test_run('conflict', job)
-		else :
-			test_run('', job)
 	jobs = {}
 
 # run YCSB tests
