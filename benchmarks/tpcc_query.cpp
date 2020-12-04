@@ -7,13 +7,25 @@
 #include "table.h"
 
 void tpcc_query::init(uint64_t thd_id, workload * h_wl) {
-	double x = (double)(rand() % 100) / 100.0;
+	//double x = (double)(rand() % 100) / 100.0;
 	part_to_access = (uint64_t *) 
 		mem_allocator.alloc(sizeof(uint64_t) * g_part_cnt, thd_id);
-	if (x < g_perc_payment)
+/*	if (x < g_perc_payment)
 		gen_payment(thd_id);
 	else 
-		gen_new_order(thd_id);
+		gen_new_order(thd_id);*/
+    int b = URand(1,11,thd_id);
+    if(b<5){
+        gen_payment(thd_id);
+    }else if(b<9){
+        gen_new_order(thd_id);
+    }else if(b<10){
+        gen_order_status(thd_id);
+    }else if(b<11){
+        gen_delivery(thd_id);
+    }else {
+        gen_stock_level(thd_id);
+    }
 }
 
 void tpcc_query::gen_payment(uint64_t thd_id) {
@@ -22,19 +34,21 @@ void tpcc_query::gen_payment(uint64_t thd_id) {
 		w_id = thd_id % g_num_wh + 1;
 	else
 		w_id = URand(1, g_num_wh, thd_id % g_num_wh);
+	//assign id values to corresponding fields
 	d_w_id = w_id;
 	uint64_t part_id = wh_to_part(w_id);
 	part_to_access[0] = part_id;
 	part_num = 1;
 
 	d_id = URand(1, DIST_PER_WARE, w_id-1);
+	//may need to change to 1.00 to 5000.00 jh
 	h_amount = URand(1, 5000, w_id-1);
 	int x = URand(1, 100, w_id-1);
 	int y = URand(1, 100, w_id-1);
 
 
 	if(x <= 85) { 
-		// home warehouse
+		// home warehouse, home payment transaction
 		c_d_id = d_id;
 		c_w_id = w_id;
 	} else {	
@@ -68,20 +82,23 @@ void tpcc_query::gen_new_order(uint64_t thd_id) {
 		w_id = URand(1, g_num_wh, thd_id % g_num_wh);
 	d_id = URand(1, DIST_PER_WARE, w_id-1);
 	c_id = NURand(1023, 1, g_cust_per_dist, w_id-1);
-	rbk = URand(1, 100, w_id-1);
+	rbk = URand(1, 100, w_id-1); //simulate error case
 	ol_cnt = URand(5, 15, w_id-1);
 	o_entry_d = 2013;
 	items = (Item_no *) _mm_malloc(sizeof(Item_no) * ol_cnt, 64);
 	remote = false;
+	//we only access one partition at this moment
 	part_to_access[0] = wh_to_part(w_id);
 	part_num = 1;
-
+    //generate each order line of this order
+    //do not handle the error case, unsed value here
 	for (UInt32 oid = 0; oid < ol_cnt; oid ++) {
 		items[oid].ol_i_id = NURand(8191, 1, g_max_items, w_id-1);
 		UInt32 x = URand(1, 100, w_id-1);
+		//when select at home warehouse
 		if (x > 1 || g_num_wh == 1)
 			items[oid].ol_supply_w_id = w_id;
-		else  {
+		else  {//the order line's supply ware house is remote, select a warehouse id which is not the local one
 			while((items[oid].ol_supply_w_id = URand(1, g_num_wh, w_id-1)) == w_id) {}
 			remote = true;
 		}
@@ -133,3 +150,29 @@ tpcc_query::gen_order_status(uint64_t thd_id) {
 		c_id = NURand(1023, 1, g_cust_per_dist, w_id-1);
 	}
 }
+
+void tpcc_query::gen_delivery(uint64_t thd_id){
+    type = TPCC_DELIVERY;
+    if (FIRST_PART_LOCAL)
+        w_id = thd_id % g_num_wh + 1;
+    else
+        w_id = URand(1, g_num_wh, thd_id % g_num_wh);
+    o_carrier_id=URand(1,10,w_id-1);
+    //is 2013 good?
+    ol_delivery_d=2013;
+    
+}
+
+void tpcc_query::gen_stock_level(uint64_t thd_id){
+    type = TPCC_STOCK_LEVEL;
+        if (FIRST_PART_LOCAL)
+            w_id = thd_id % g_num_wh + 1;
+        else
+            w_id = URand(1, g_num_wh, thd_id % g_num_wh);
+        //may need to worry about concurrency issue
+        d_id = URand(1, DIST_PER_WARE, w_id - 1);
+
+    s_thres=URand(10,20,w_id-1);
+    //check[w_id][d_id]=1;
+}
+
