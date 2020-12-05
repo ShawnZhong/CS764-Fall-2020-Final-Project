@@ -3,3 +3,4 @@
 rundb
 .DS_Store
 .idea
+cmake-build*
