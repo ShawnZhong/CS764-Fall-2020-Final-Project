@@ -7,7 +7,5 @@ core
 perf.dat*
 jemalloc.stats
 config.h
-silo
 ermia
-mica
 foedus_code
