@@ -42,38 +42,34 @@ def read_result(results_dir):
                 *_,
             ) = summary.split()
 
-            *group_name, index_type, num_threads = job_name.split("_")
+            *group_name, index_type, num_threads = job_name.split(",")
+            group_name = " ".join(group_name)
 
-            group_name = "_".join(group_name)
-            run_time = parse(run_time)
-            time_index = parse(time_index)
-            num_threads = int(num_threads)
-
-            yield group_name, index_type, num_threads, run_time
+            yield group_name, index_type, int(num_threads), parse(txn_cnt) / parse(time_index)
 
 
 def main(results_dir):
     res = sorted(read_result(results_dir))
 
     grouped_res = {
-        " ".join(key).replace("_", " "): list(items)
+        " ".join(key): list(items)
         for key, items in itertools.groupby(res, lambda item: item[:2])
     }
 
-    plt.figure(figsize=(25, 20))
+    plt.figure(figsize=(20, 25))
 
     for i, (label, items) in enumerate(grouped_res.items()):
         num_threads_lst = [e[2] for e in items]
         run_time_lst = [e[3] for e in items]
 
-        plt.subplot(4, 5, i + 1)
+        plt.subplot(5, 4, i + 1)
         plt.plot(num_threads_lst, run_time_lst)  # label=label)
-        plt.xscale("log", basex=2)
+        # plt.xscale("log", basex=2)
         plt.title(label)
 
     plt.savefig(results_dir / "plot.png")
 
 
 if __name__ == "__main__":
-    results_dir = Path("results_high_cont")
+    results_dir = Path("results")
     main(results_dir)
