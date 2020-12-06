@@ -1,13 +1,15 @@
-import datetime
+#!/usr/bin/env python3
+
 import os
 import os.path
 import re
-import signal
-import subprocess
-import time
+import subprocess as sp
+
+from pathlib import Path
 
 CFG_STD = "config-std.h"
 CFG_CURR = "config.h"
+RESULTS_DIR = Path("results")
 
 
 def replace(filename, pattern, replacement):
@@ -15,39 +17,57 @@ def replace(filename, pattern, replacement):
     s = f.read()
     f.close()
     s = re.sub(pattern, replacement, s)
-    f = open(filename, 'w')
+    f = open(filename, "w")
     f.write(s)
     f.close()
 
 
-def test_compile(name, job):
-    os.system("cp " + CFG_STD + ' ' + CFG_CURR)
-    for (param, value) in job.items():
-        pattern = r"\#define\s" + re.escape(param) + r'.*'
-        replacement = "#define " + param + ' ' + str(value)
+def execute(cmd, out_path, err_path):
+    p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE, shell=True)
+    stdout, stderr = p.communicate()
+    out_str, err_str = stdout.decode(), stderr.decode()
+
+    with open(out_path, "w") as fout, open(err_path, "w") as ferr:
+        print(out_str, file=fout)
+        print(err_str, file=ferr)
+
+    return p.returncode, out_str, err_str
+
+
+def test_compile(name, job, result_dir):
+    os.system("cp " + CFG_STD + " " + CFG_CURR)
+    for param, value in job.items():
+        pattern = r"\#define\s" + re.escape(param) + r".*"
+        replacement = "#define " + param + " " + str(value)
         replace(CFG_CURR, pattern, replacement)
-    ret = os.system("make -j > temp.out 2>&1")
+
+    ret, _, _ = execute(
+        "make -j",
+        out_path=result_dir / "compile.out",
+        err_path=result_dir / "compile.err",
+    )
+
     if ret != 0:
         print(f"ERROR in compiling job {name}")
-    print(f"PASS Compile\t {name}")
-    os.system('rm temp.out')
+    else:
+        print(f"PASS compile\t {name}")
 
 
-def test_run(name, job, app_flags=""):
-    cmd = f"./rundb {app_flags}"
-    start = datetime.datetime.now()
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    stdout, stderr = p.communicate()
+def test_run(name, job, result_dir):
+    cmd = f"./rundb -o {result_dir / 'result.txt'}"
+    _, stdout, _ = execute(
+        cmd, out_path=result_dir / "run.out", err_path=result_dir / "run.err"
+    )
 
-    if "PASS" not in stdout.decode():
+    if "PASS" in stdout:
+        print(f"PASS execution\t {name}")
+    else:
         print(f"FAILED execution. cmd = {cmd}")
-
-    print(f"PASS execution\t {name}")
 
 
 def main():
-    algs = ['DL_DETECT', 'NO_WAIT', 'HEKATON', 'SILO', 'TICTOC']
-    indices = ['IDX_BTREE', 'IDX_HASH']
+    algs = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
+    indices = ["IDX_BTREE", "IDX_HASH"]
     num_threads_lst = [2 ** n for n in range(1, 8)]
     workloads = ["YCSB", "TPCC"]
 
@@ -56,7 +76,7 @@ def main():
             "WORKLOAD": workload,
             "CORE_CNT": num_threads,
             "CC_ALG": alg,
-            "INDEX_STRUCT": index
+            "INDEX_STRUCT": index,
         }
         for workload in workloads
         for alg in algs
@@ -65,9 +85,12 @@ def main():
     }
 
     for name, job in jobs.items():
-        test_compile(name, job)
-        test_run(name, job, app_flags=f"-o results/{name}.txt")
+        result_dir = RESULTS_DIR / name
+        os.makedirs(result_dir, exist_ok=True)
+
+        test_compile(name, job, result_dir)
+        test_run(name, job, result_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
