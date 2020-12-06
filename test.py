@@ -7,7 +7,7 @@ import subprocess
 import time
 
 CFG_STD = "config-std.h"
-CFG_CURR = "config-std.h"
+CFG_CURR = "config.h"
 
 
 def replace(filename, pattern, replacement):
