@@ -1,5 +1,10 @@
-import os, sys, re, os.path
-import subprocess, datetime, time, signal
+import datetime
+import os
+import os.path
+import re
+import signal
+import subprocess
+import time
 
 CFG_STD = "config-std.h"
 CFG_CURR = "config-std.h"
@@ -15,22 +20,22 @@ def replace(filename, pattern, replacement):
     f.close()
 
 
-def test_compile(job):
+def test_compile(name, job):
     os.system("cp " + CFG_STD + ' ' + CFG_CURR)
-    for (param, value) in job.iteritems():
+    for (param, value) in job.items():
         pattern = r"\#define\s" + re.escape(param) + r'.*'
         replacement = "#define " + param + ' ' + str(value)
         replace(CFG_CURR, pattern, replacement)
     ret = os.system("make -j > temp.out 2>&1")
     if ret != 0:
-        print(f"ERROR in compiling job={job}")
+        print(f"ERROR in compiling job {name}")
         exit(0)
-    print(f"PASS Compile{job}")
+    print(f"PASS Compile {name}")
     os.system('rm temp.out')
 
 
-def test_run(job, app_flags=""):
-    cmd = f"./rundb {app_flags}"
+def test_run(name, job, app_flags=""):
+    cmd = f"./rundb {app_flags} -o results/{name}.txt"
     start = datetime.datetime.now()
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     timeout = 10  # in second
@@ -69,9 +74,9 @@ def main():
         for num_threads in num_threads_lst
     }
 
-    for job in jobs:
-        test_compile(job)
-        test_run(job)
+    for name, job in jobs.items():
+        test_compile(name, job)
+        test_run(name, job)
 
 
 if __name__ == '__main__':
