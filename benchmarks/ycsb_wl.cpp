@@ -146,7 +146,7 @@ void * ycsb_wl::init_table_slice() {
 			rc = the_index->index_insert(idx_key, m_item, part_id);
 			if (rc != RCOK) {
 				printf("rc failed on idx_key=%ld, part_id=%d\n", idx_key, part_id);
-				sleep(1);
+				// sleep(1);
 			}
 		} while (rc != RCOK);
 	}

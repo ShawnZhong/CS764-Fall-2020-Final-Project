@@ -35,20 +35,12 @@ def test_compile(name, job):
 
 
 def test_run(name, job, app_flags=""):
-    cmd = f"./rundb {app_flags} -o results/{name}.txt"
+    cmd = f"./rundb {app_flags}"
     start = datetime.datetime.now()
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    timeout = 10  # in second
-    while process.poll() is None:
-        time.sleep(1)
-        now = datetime.datetime.now()
-        if (now - start).seconds > timeout:
-            os.kill(process.pid, signal.SIGKILL)
-            os.waitpid(-1, os.WNOHANG)
-            print("ERROR. Timeout cmd=%s" % cmd)
-            exit(0)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    stdout, stderr = p.communicate()
 
-    if "PASS" not in process.stdout.readlines():
+    if "PASS" not in stdout.decode():
         print("FAILED execution. cmd = {cmd}")
         exit(0)
 
@@ -57,7 +49,7 @@ def test_run(name, job, app_flags=""):
 
 def main():
     algs = ['DL_DETECT', 'NO_WAIT', 'HEKATON', 'SILO', 'TICTOC']
-    indices = ['INDEX_BTREE', 'INDEX_HASH']
+    indices = ['IDX_BTREE', 'IDX_HASH']
     num_threads_lst = [2 ** n for n in range(1, 8)]
     workloads = ["YCSB", "TPCC"]
 
@@ -76,7 +68,7 @@ def main():
 
     for name, job in jobs.items():
         test_compile(name, job)
-        test_run(name, job)
+        test_run(name, job, app_flags=f"-o results/{name}.txt")
 
 
 if __name__ == '__main__':

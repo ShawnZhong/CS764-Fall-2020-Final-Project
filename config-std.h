@@ -24,6 +24,8 @@
 
 #define MEM_ALLIGN					8 
 
+// Note: thread alloc and part alloc cannot be used together
+
 // [THREAD_ALLOC]
 #define THREAD_ALLOC				false
 #define THREAD_ARENA_SIZE			(1UL << 22) 
@@ -53,7 +55,7 @@
 #define ABORT_BUFFER_SIZE			10
 #define ABORT_BUFFER_ENABLE			true
 // [ INDEX ]
-#define ENABLE_LATCH				false
+#define ENABLE_LATCH				true
 #define CENTRAL_INDEX				false
 #define CENTRAL_MANAGER 			false
 #define INDEX_STRUCT				IDX_HASH
@@ -109,7 +111,7 @@
 // max number of rows touched per transaction
 #define MAX_ROW_PER_TXN				64
 #define QUERY_INTVL 				1UL
-#define MAX_TXN_PER_PART 			100
+#define MAX_TXN_PER_PART 			100000
 #define FIRST_PART_LOCAL 			true
 #define MAX_TUPLE_SIZE				1024 // in bytes
 // ==== [YCSB] ====
