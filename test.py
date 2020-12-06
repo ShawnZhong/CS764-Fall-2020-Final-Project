@@ -29,8 +29,7 @@ def test_compile(name, job):
     ret = os.system("make -j > temp.out 2>&1")
     if ret != 0:
         print(f"ERROR in compiling job {name}")
-        exit(0)
-    print(f"PASS Compile {name}")
+    print(f"PASS Compile\t {name}")
     os.system('rm temp.out')
 
 
@@ -41,10 +40,9 @@ def test_run(name, job, app_flags=""):
     stdout, stderr = p.communicate()
 
     if "PASS" not in stdout.decode():
-        print("FAILED execution. cmd = {cmd}")
-        exit(0)
+        print(f"FAILED execution. cmd = {cmd}")
 
-    print(f"PASS execution. {job}")
+    print(f"PASS execution\t {name}")
 
 
 def main():
