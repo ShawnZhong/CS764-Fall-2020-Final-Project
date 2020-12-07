@@ -107,10 +107,10 @@ RC IndexMICAMBTree::index_insert(txn_man* txn, MICATransaction* tx,
 
   mica_mbtree_value_type v{row, 1};
 #if !TPCC_VALIDATE_NODE
-  if (!idx->insert_refcount(mbtree_key, v)) return ERROR;
+  if (!idx->insert(mbtree_key, v)) return ERROR;
 #else
   concurrent_mica_mbtree::insert_info_t insert_info;
-  if (!idx->insert_refcount(mbtree_key, v, &insert_info)) return ERROR;
+  if (!idx->insert_if_absent(mbtree_key, v, &insert_info)) return ERROR;
 
   // assert(concurrent_mbtree::ExtractVersionNumber(insert_info.node) ==
   //        insert_info.new_version);  // for single-threaded debugging
@@ -312,7 +312,7 @@ RC IndexMICAMBTree::index_remove(txn_man* txn, MICATransaction* tx,
 
   u64_varkey mbtree_key(key);
 
-  if (!idx->remove_refcount(mbtree_key, NULL)) return ERROR;
+  if (!idx->remove(mbtree_key, NULL)) return ERROR;
 
   return RCOK;
 }
