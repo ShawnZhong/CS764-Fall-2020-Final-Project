@@ -55,21 +55,29 @@ def main(results_dir):
         for key, items in itertools.groupby(res, lambda item: item[:3])
     }
 
-    plt.figure(figsize=(8, 10))
+    plt.figure(figsize=(16, 10))
     # plt.subplots_adjust(right=0.7)
 
     for i, (key, items) in enumerate(grouped_res.items()):
+        workload, alg, index_type = key
+
         num_threads_lst = [e[3] for e in items]
         run_time_lst = [e[4] for e in items]
         label = " ".join(key)
 
-        if key[2] == "IDX_HASH":
-            plt.subplot(2, 1, 1)
-        else:
-            plt.subplot(2, 1, 2)
-        plt.plot(num_threads_lst, run_time_lst, label=key[1])
+        index = {
+            ("IDX_HASH", "TPCC"): 1,
+            ("IDX_BTREE", "TPCC"): 2,
+            ("IDX_HASH", "YCSB"): 3,
+            ("IDX_BTREE", "YCSB"): 4,
+        }
+
+        plt.subplot(2, 2, index[(index_type, workload)])
+
+        plt.plot(num_threads_lst, run_time_lst, label=alg, marker='o')
         plt.xscale("log", basex=2)
         plt.legend()
+        plt.title(f"{workload} {index_type}")
         # plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
         # plt.title(label)
 

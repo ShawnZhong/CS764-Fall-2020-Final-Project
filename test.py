@@ -66,15 +66,15 @@ def test_run(name, job, result_dir):
 
 
 def main():
-    # algs = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
-    # indices = ["IDX_BTREE", "IDX_HASH"]
-    # num_threads_lst = [2 ** n for n in range(1, 8)]
+    algs = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
+    indices = ["IDX_BTREE", "IDX_HASH"]
+    num_threads_lst = [2 ** n for n in range(1, 8)]
     # workloads = ["YCSB", "TPCC"]
 
-    num_threads_lst = range(1, 1000, 50)
-    indices = ["IDX_HASH"]
-    algs = ["NO_WAIT"]
-    workloads = ["TPCC"]
+    # num_threads_lst = range(1, 1000, 50)
+    # indices = ["IDX_HASH"]
+    # algs = ["NO_WAIT"]
+    workloads = ["YCSB"]
 
     jobs = {
         f"{workload},{alg},{index},{num_threads}": {
