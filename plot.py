@@ -56,7 +56,6 @@ def main(results_dir):
     }
 
     plt.figure(figsize=(16, 10))
-    # plt.subplots_adjust(right=0.7)
 
     for i, (key, items) in enumerate(grouped_res.items()):
         workload, alg, index_type = key
@@ -76,10 +75,10 @@ def main(results_dir):
 
         plt.plot(num_threads_lst, run_time_lst, label=alg, marker='o')
         plt.xscale("log", basex=2)
+        plt.xlabel("Number of threads")
+        plt.ylabel("Throughput (txn/sec)")
         plt.legend()
         plt.title(f"{workload} {index_type}")
-        # plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
-        # plt.title(label)
 
     plt.savefig(results_dir / "plot.png")
 
