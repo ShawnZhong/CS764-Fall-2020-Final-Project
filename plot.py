@@ -42,30 +42,36 @@ def read_result(results_dir):
                 *_,
             ) = summary.split()
 
-            *group_name, index_type, num_threads = job_name.split(",")
-            group_name = " ".join(group_name)
+            workload, alg, index_type, num_threads = job_name.split(",")
 
-            yield group_name, index_type, int(num_threads), parse(txn_cnt) / parse(time_index)
+            yield workload, alg, index_type, int(num_threads), parse(txn_cnt) / parse(time_index)
 
 
 def main(results_dir):
     res = sorted(read_result(results_dir))
 
     grouped_res = {
-        " ".join(key): list(items)
-        for key, items in itertools.groupby(res, lambda item: item[:2])
+        key: list(items)
+        for key, items in itertools.groupby(res, lambda item: item[:3])
     }
 
-    plt.figure(figsize=(20, 25))
+    plt.figure(figsize=(8, 10))
+    # plt.subplots_adjust(right=0.7)
 
-    for i, (label, items) in enumerate(grouped_res.items()):
-        num_threads_lst = [e[2] for e in items]
-        run_time_lst = [e[3] for e in items]
+    for i, (key, items) in enumerate(grouped_res.items()):
+        num_threads_lst = [e[3] for e in items]
+        run_time_lst = [e[4] for e in items]
+        label = " ".join(key)
 
-        plt.subplot(5, 4, i + 1)
-        plt.plot(num_threads_lst, run_time_lst)  # label=label)
-        # plt.xscale("log", basex=2)
-        plt.title(label)
+        if key[2] == "IDX_HASH":
+            plt.subplot(2, 1, 1)
+        else:
+            plt.subplot(2, 1, 2)
+        plt.plot(num_threads_lst, run_time_lst, label=key[1])
+        plt.xscale("log", basex=2)
+        plt.legend()
+        # plt.legend(bbox_to_anchor=(1.04,1), loc="upper left")
+        # plt.title(label)
 
     plt.savefig(results_dir / "plot.png")
 
