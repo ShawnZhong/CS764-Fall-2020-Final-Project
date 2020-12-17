@@ -66,7 +66,7 @@ def test_run(name, job, result_dir):
 
 def run_exp(exp_name, jobs):
     for name, job in jobs.items():
-        result_dir = results_dir / exp_name / name
+        result_dir = RESULTS_DIR / exp_name / name
         os.makedirs(result_dir, exist_ok=True)
 
         test_compile(name, job, result_dir)
@@ -80,9 +80,10 @@ scalibility_exp = {
         "INDEX_STRUCT": index,
     }
     for workload in ["YCSB"]
-    for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
+    for alg in ["NO_WAIT"]
+    # for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in list(range(5, 35, 5))
+    for num_threads in list(range(5, 100, 5))
 }
 
 fanout_exp = {
@@ -147,11 +148,11 @@ hotset_exp = {
 
 
 def main():
-    # run_exp("scalibility", scalibility_exp)
+    run_exp("scalibility", scalibility_exp)
     # run_exp("fanout", fanout_exp)
     # run_exp("contention", contention_exp)
     # run_exp("rw", rw_exp)
-    run_exp("hotset", hotset_exp)
+    # run_exp("hotset", hotset_exp)
 
 
 if __name__ == "__main__":
