@@ -66,7 +66,7 @@ def test_run(name, job, result_dir):
 
 def run_exp(exp_name, jobs):
     for name, job in jobs.items():
-        result_dir = results_dir / name
+        result_dir = results_dir / exp_name / name
         os.makedirs(result_dir, exist_ok=True)
 
         test_compile(name, job, result_dir)
@@ -151,7 +151,7 @@ def main():
     # run_exp("fanout", fanout_exp)
     # run_exp("contention", contention_exp)
     # run_exp("rw", rw_exp)
-    run_exp("hoset", hotset_exp)
+    run_exp("hotset", hotset_exp)
 
 
 if __name__ == "__main__":
