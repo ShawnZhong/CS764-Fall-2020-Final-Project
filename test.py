@@ -64,37 +64,94 @@ def test_run(name, job, result_dir):
     else:
         print(f"FAILED execution. cmd = {cmd}")
 
-
-def main():
-    algs = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
-    indices = ["IDX_BTREE", "IDX_HASH"]
-    num_threads_lst = [2 ** n for n in range(1, 8)]
-    # workloads = ["YCSB", "TPCC"]
-
-    # num_threads_lst = range(1, 1000, 50)
-    # indices = ["IDX_HASH"]
-    # algs = ["NO_WAIT"]
-    workloads = ["YCSB"]
-
-    jobs = {
-        f"{workload},{alg},{index},{num_threads}": {
-            "WORKLOAD": workload,
-            "CORE_CNT": num_threads,
-            "CC_ALG": alg,
-            "INDEX_STRUCT": index,
-        }
-        for workload in workloads
-        for alg in algs
-        for index in indices
-        for num_threads in num_threads_lst
-    }
-
+def run_exp(exp_name, jobs):
     for name, job in jobs.items():
-        result_dir = RESULTS_DIR / name
+        result_dir = results_dir / name
         os.makedirs(result_dir, exist_ok=True)
 
         test_compile(name, job, result_dir)
         test_run(name, job, result_dir)
+
+scalibility_exp = {
+    f"{workload},{alg},{index},{num_threads}": {
+        "WORKLOAD": workload,
+        "CORE_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+    }
+    for workload in ["YCSB"]
+    for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
+    for num_threads in list(range(5, 35, 5))
+}
+
+fanout_exp = {
+    f"{workload},{alg},{index},{num_threads},{fanout}": {
+        "WORKLOAD": workload,
+        "CORE_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+        "BTREE_ORDER": fanout,
+    }
+    for workload in ["TPCC"]
+    for alg in ["NO_WAIT"]
+    for index in ["IDX_BTREE"]
+    for num_threads in [32]
+    for fanout in [4, 8, 16, 32, 64, 128, 256]
+}
+
+contention_exp = {
+    f"{workload},{alg},{index},{num_threads},{num_wh}": {
+        "WORKLOAD": workload,
+        "CORE_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+        "NUM_WH": num_wh,
+    }
+    for workload in ["TPCC"]
+    for alg in ["NO_WAIT"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
+    for num_threads in [32]
+    for num_wh in [i for i in range(1,21)]
+}
+
+rw_exp = {
+    f"{workload},{alg},{index},{num_threads},{rw_ratio}": {
+        "WORKLOAD": workload,
+        "CORE_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+        "PERC_PAYMENT": rw_ratio,
+    }
+    for workload in ["TPCC"]
+    for alg in ["NO_WAIT"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
+    for num_threads in [32]
+    for rw_ratio in [i/10 for i in range(11)]
+}
+
+hotset_exp = {
+    f"{workload},{alg},{index},{num_threads},{zipf_theta}": {
+        "WORKLOAD": workload,
+        "CORE_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+        "ZIPF_THETA": zipf_theta,
+    }
+    for workload in ["YCSB"]
+    for alg in ["NO_WAIT"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
+    for num_threads in [32]
+    for zipf_theta in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+}
+
+
+def main():
+    # run_exp("scalibility", scalibility_exp)
+    # run_exp("fanout", fanout_exp)
+    # run_exp("contention", contention_exp)
+    # run_exp("rw", rw_exp)
+    run_exp("hoset", hotset_exp)
 
 
 if __name__ == "__main__":
