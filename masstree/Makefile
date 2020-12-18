@@ -49,8 +49,7 @@ clean:
 	rm -f rundb $(OBJS) $(DEPS)
 
 deps:
-	sudo apt-get install libnuma-dev cmake -y
+	sudo apt-get install libnuma-dev libjemalloc-dev cmake -y
 	cd libs/silo/masstree && ./configure && make -j
 	cd libs/silo && make -j
 	cd libs/cicada-engine && mkdir -p build && cd build && cmake .. && make -j
-	
