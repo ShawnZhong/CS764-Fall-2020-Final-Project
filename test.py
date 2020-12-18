@@ -82,14 +82,14 @@ def run_exp(exp_name, jobs):
             test_compile(job_name, job, result_dir)
             test_run(job_name, job, result_dir)
 
-scalibility_exp = [
+scalability_exp = [
     {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
     }
-    for workload in ["YCSB"]
+    for workload in ["YCSB", "TPCC"]
     for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in range(5, 100, 5)
@@ -157,7 +157,7 @@ hotset_exp = [
 
 
 def main():
-    run_exp("scalibility", scalibility_exp)
+    run_exp("scalability", scalability_exp)
     run_exp("fanout", fanout_exp)
     run_exp("contention", contention_exp)
     run_exp("rw", rw_exp)

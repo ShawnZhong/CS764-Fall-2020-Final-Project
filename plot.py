@@ -84,7 +84,7 @@ def plot(
     plt.savefig(results_dir / f"{figname}.png")
 
 
-def plot_scalibility_1():
+def plot_scalability_1():
     def subplot_index_func(items):
         item = items[0]
         subplot_map = {
@@ -96,8 +96,8 @@ def plot_scalibility_1():
         return subplot_map[(item["INDEX_STRUCT"]), item["WORKLOAD"]]
 
     plot(
-        results_dir=RESULTS_DIR / "scalibility",
-        figname="scalibility-1",
+        results_dir=RESULTS_DIR / "scalability",
+        figname="scalability-1",
         figsize=(16, 4),
         subplot_size=(1, 4),
         xlabel="Number of Threads",
@@ -112,7 +112,7 @@ def plot_scalibility_1():
     )
 
 
-def plot_scalibility_2():
+def plot_scalability_2():
     def subplot_index_func(items):
         item = items[0]
         col_label = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
@@ -124,8 +124,8 @@ def plot_scalibility_2():
         return row_idx * len(col_label) + col_idx + 1
 
     plot(
-        results_dir=RESULTS_DIR / "scalibility",
-        figname="scalibility-2",
+        results_dir=RESULTS_DIR / "scalability",
+        figname="scalability-2",
         figsize=(20, 8),
         subplot_size=(2, 5),
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
@@ -139,8 +139,8 @@ def plot_scalibility_2():
 
 
 def main():
-    plot_scalibility_1()
-    plot_scalibility_2()
+    plot_scalability_1()
+    plot_scalability_2()
     pass
 
 
