@@ -152,7 +152,7 @@ hotset_exp = [
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [32]
-    for zipf_theta in [i / 10 for i in range(11)]
+    for zipf_theta in [i / 10 for i in range(10)]
 ]
 
 

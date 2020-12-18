@@ -53,7 +53,7 @@ def plot(
     results_dir,
     title_func,
     data_func,
-    subplot_index_func=None,
+    subplot_func=None,
     groupby_keys=None,
     label_func=None,
     xlabel=None,
@@ -71,8 +71,8 @@ def plot(
         data = dict(sorted(data_func(items).items()))
         print(key, " ".join(f"{e:.1f}" for e in data.values()))
 
-        if subplot_index_func:
-            plt.subplot(*subplot_size, subplot_index_func(items))
+        if subplot_func:
+            plt.subplot(*subplot_size, subplot_func(items))
         plt.plot(
             data.keys(),
             data.values(),
@@ -96,9 +96,12 @@ def plot(
 def compute_y(e):
     return e["time_index"] / e["txn_cnt"] * 10 ** 6
 
+def subplot_by_index_struct(items):
+    return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
+
 
 def plot_scalability_1():
-    def subplot_index_func(items):
+    def subplot_func(items):
         item = items[0]
         subplot_map = {
             ("IDX_HASH", "TPCC"): 1,
@@ -119,12 +122,12 @@ def plot_scalability_1():
         label_func=lambda items: items[0]["CC_ALG"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
         data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
-        subplot_index_func=subplot_index_func,
+        subplot_func=subplot_func,
     )
 
 
 def plot_scalability_2():
-    def subplot_index_func(items):
+    def subplot_func(items):
         item = items[0]
         col_label = ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
         row_label = ["TPCC", "YCSB"]
@@ -143,14 +146,11 @@ def plot_scalability_2():
         label_func=lambda items: items[0]["INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['CC_ALG']}",
         data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
-        subplot_index_func=subplot_index_func,
+        subplot_func=subplot_func,
     )
 
 
 def plot_rw():
-    def subplot_index_func(items):
-        return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
-
     plot(
         results_dir=RESULTS_DIR / "rw",
         figname="rw",
@@ -161,7 +161,7 @@ def plot_rw():
         groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
         data_func=lambda items: {e["PERC_PAYMENT"]: compute_y(e) for e in items},
-        subplot_index_func=subplot_index_func,
+        subplot_func=subplot_by_index_struct,
     )
 
 def plot_fanout():
@@ -178,9 +178,6 @@ def plot_fanout():
 
 
 def plot_hotset():
-    def subplot_index_func(items):
-        return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
-
     plot(
         results_dir=RESULTS_DIR / "hotset",
         figname="hotset",
@@ -191,15 +188,30 @@ def plot_hotset():
         groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
         data_func=lambda items: {e["ZIPF_THETA"]: compute_y(e) for e in items},
-        subplot_index_func=subplot_index_func,
+        subplot_func=subplot_by_index_struct,
+    )
+
+def plot_contention():
+    plot(
+        results_dir=RESULTS_DIR / "contention",
+        figname="contention",
+        figsize=(10, 5),
+        subplot_size=(1, 2),
+        xlabel="Number of Warehouse",
+        ylabel="Average Index Time per Transaction (ms)",
+        groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
+        title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
+        data_func=lambda items: {e["NUM_WH"]: compute_y(e) for e in items},
+        subplot_func=subplot_by_index_struct,
     )
 
 def main():
-    # plot_scalability_1()
+    plot_scalability_1()
     # plot_scalability_2()
     # plot_rw()
     # plot_fanout()
-    plot_hotset()
+    # plot_hotset()
+    # plot_contention()
     pass
 
 
