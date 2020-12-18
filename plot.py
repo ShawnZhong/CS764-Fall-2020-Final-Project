@@ -116,6 +116,7 @@ def plot_scalability_1():
         figname="scalability-1",
         figsize=(16, 4),
         subplot_size=(1, 4),
+        x_log_scale=True,
         xlabel="Number of Threads",
         ylabel="Average Index Time per Transaction (ms)",
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
@@ -142,6 +143,7 @@ def plot_scalability_2():
         figname="scalability-2",
         figsize=(20, 8),
         subplot_size=(2, 5),
+        x_log_scale=True,
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['CC_ALG']}",
@@ -207,11 +209,11 @@ def plot_contention():
 
 def main():
     plot_scalability_1()
-    # plot_scalability_2()
-    # plot_rw()
-    # plot_fanout()
-    # plot_hotset()
-    # plot_contention()
+    plot_scalability_2()
+    plot_rw()
+    plot_fanout()
+    plot_hotset()
+    plot_contention()
     pass
 
 

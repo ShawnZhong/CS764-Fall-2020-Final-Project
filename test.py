@@ -92,7 +92,8 @@ scalability_exp = [
     for workload in ["YCSB", "TPCC"]
     for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in range(5, 100, 5)
+    # for num_threads in [2 ** i for i in range(0, 8)]
+    for num_threads in [2 ** i for i in range(0, 6)]
 ]
 
 fanout_exp = [
@@ -106,7 +107,7 @@ fanout_exp = [
     for workload in ["TPCC"]
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE"]
-    for num_threads in [32]
+    for num_threads in [1]
     for fanout in [2**i for i in range(2, 15)]
 ]
 
@@ -121,7 +122,7 @@ contention_exp = [
     for workload in ["TPCC"]
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in [32]
+    for num_threads in [1]
     for num_wh in [i for i in range(1, 21)]
 ]
 
@@ -136,7 +137,7 @@ rw_exp = [
     for workload in ["TPCC"]
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in [32]
+    for num_threads in [1]
     for rw_ratio in [i / 10 for i in range(11)]
 ]
 
@@ -151,7 +152,7 @@ hotset_exp = [
     for workload in ["YCSB"]
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in [32]
+    for num_threads in [1]
     for zipf_theta in [i / 10 for i in range(10)]
 ]
 
