@@ -74,7 +74,7 @@ def main(results_dir):
         plt.subplot(2, 2, index[(index_type, workload)])
 
         plt.plot(num_threads_lst, run_time_lst, label=alg, marker='o')
-        plt.xscale("log", basex=2)
+        # plt.xscale("log", basex=2)
         plt.xlabel("Number of threads")
         plt.ylabel("Throughput (txn/sec)")
         plt.legend()
@@ -84,5 +84,5 @@ def main(results_dir):
 
 
 if __name__ == "__main__":
-    results_dir = Path("results")
+    results_dir = Path("results") / "scalibility"
     main(results_dir)
