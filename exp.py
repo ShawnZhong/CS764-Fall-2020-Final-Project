@@ -166,7 +166,7 @@ latch_exp = [
     }
     for workload in ["YCSB", "TPCC"]
     for alg in ["NO_WAIT"]
-    for index in ["IDX_BTREE"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [1]
     for latch in ["true", "false"]
 ]
