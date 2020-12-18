@@ -47,6 +47,15 @@ def read_result(results_dir):
             yield workload, alg, index_type, int(num_threads), parse(txn_cnt) / parse(time_index), hotset_perc
 
 
+def sort_result(x,y):
+    d = {x[i]:y[i] for i in range(len(x))}
+    sorted_x = []
+    sorted_y = []
+    for key in sorted(d.keys()):
+        sorted_x.append(key)
+        sorted_y.append(d[key])
+    return sorted_x, sorted_y
+
 def main(results_dir):
     res = sorted(read_result(results_dir))
 
@@ -62,21 +71,8 @@ def main(results_dir):
 
         hotset_perc_lst = [e[5] for e in items]
         run_time_lst = [e[4] for e in items]
-        print(hotset_perc_lst)
-        print(run_time_lst)
 
-        d = {hotset_perc_lst[i]:run_time_lst[i] for i in range(len(hotset_perc_lst))}
-
-        sorted_hotset_perc_lst = []
-        sorted_run_time_lst = []
-
-        for key in sorted(d.keys()):
-          print("append", key)
-          sorted_hotset_perc_lst.append(key)
-          sorted_run_time_lst.append(d[key])
-
-        print(sorted_hotset_perc_lst)
-        print(sorted_run_time_lst)
+        sorted_hotset_perc_lst, sorted_run_time_lst = sort_result(hotset_perc_lst, run_time_lst)
         
         label = " ".join(key)
 
