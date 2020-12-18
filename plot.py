@@ -41,6 +41,7 @@ def read_results(results_dir):
 
 
 def group_by(res, keys):
+    keys = keys or []
     d = defaultdict(list)
     for item in res:
         k = tuple(item[k] for k in keys)
@@ -50,16 +51,16 @@ def group_by(res, keys):
 
 def plot(
     results_dir,
-    groupby_keys,
-    label_func,
     title_func,
     data_func,
-    subplot_index_func,
+    subplot_index_func=None,
+    groupby_keys=None,
+    label_func=None,
     xlabel=None,
     ylabel=None,
     figname="plot",
     figsize=(16, 10),
-    subplot_size=(2, 2),
+    subplot_size=(1, 1),
     x_log_scale=False,
 ):
     res = list(read_results(results_dir))
@@ -70,18 +71,30 @@ def plot(
         data = dict(sorted(data_func(items).items()))
         print(key, " ".join(f"{e:.1f}" for e in data.values()))
 
-        plt.subplot(*subplot_size, subplot_index_func(items))
-        plt.plot(data.keys(), data.values(), label=label_func(items), marker="o")
+        if subplot_index_func:
+            plt.subplot(*subplot_size, subplot_index_func(items))
+        plt.plot(
+            data.keys(),
+            data.values(),
+            label=label_func(items) if label_func else None,
+            marker="o",
+        )
         if x_log_scale:
             plt.xscale("log", basex=2)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title_func(items))
 
-    # move to the last subplot in the first row to plot the legend
-    plt.subplot(*subplot_size, subplot_size[1])
-    plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+    if label_func:
+        # move to the last subplot in the first row to plot the legend
+        plt.subplot(*subplot_size, subplot_size[1])
+        plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+
     plt.savefig(results_dir / f"{figname}.png")
+
+
+def compute_y(e):
+    return e["time_index"] / e["txn_cnt"] * 10 ** 6
 
 
 def plot_scalability_1():
@@ -101,13 +114,11 @@ def plot_scalability_1():
         figsize=(16, 4),
         subplot_size=(1, 4),
         xlabel="Number of Threads",
-        ylabel="Average Time per Transaction (ms)",
+        ylabel="Average Index Time per Transaction (ms)",
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["CC_ALG"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
-        data_func=lambda items: {
-            e["CORE_CNT"]: e["time_index"] / e["txn_cnt"] * 10 ** 6 for e in items
-        },
+        data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
         subplot_index_func=subplot_index_func,
     )
 
@@ -131,16 +142,64 @@ def plot_scalability_2():
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['CC_ALG']}",
-        data_func=lambda items: {
-            e["CORE_CNT"]: e["time_index"] / e["txn_cnt"] * 10 ** 6 for e in items
-        },
+        data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
         subplot_index_func=subplot_index_func,
     )
 
 
+def plot_rw():
+    def subplot_index_func(items):
+        return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
+
+    plot(
+        results_dir=RESULTS_DIR / "rw",
+        figname="rw",
+        figsize=(8, 4),
+        subplot_size=(1, 2),
+        xlabel="Read/Write Ratio",
+        ylabel="Average Index Time per Transaction (ms)",
+        groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
+        title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
+        data_func=lambda items: {e["PERC_PAYMENT"]: compute_y(e) for e in items},
+        subplot_index_func=subplot_index_func,
+    )
+
+def plot_fanout():
+    plot(
+        results_dir=RESULTS_DIR / "fanout",
+        figname="fanout",
+        figsize=(7, 5),
+        x_log_scale=True,
+        xlabel="B-Tree Order",
+        ylabel="Average Index Time per Transaction (ms)",
+        title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
+        data_func=lambda items: {e["BTREE_ORDER"]: compute_y(e) for e in items},
+    )
+
+
+def plot_hotset():
+    def subplot_index_func(items):
+        return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
+
+    plot(
+        results_dir=RESULTS_DIR / "hotset",
+        figname="hotset",
+        figsize=(10, 5),
+        subplot_size=(1, 2),
+        xlabel="Hotset Percentage",
+        ylabel="Average Index Time per Transaction (ms)",
+        groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
+        title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
+        data_func=lambda items: {e["ZIPF_THETA"]: compute_y(e) for e in items},
+        subplot_index_func=subplot_index_func,
+    )
+
 def main():
-    plot_scalability_1()
-    plot_scalability_2()
+    # plot_scalability_1()
+    # plot_scalability_2()
+    # plot_rw()
+    # plot_fanout()
+    plot_hotset()
     pass
 
 

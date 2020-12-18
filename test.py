@@ -75,7 +75,7 @@ def run_exp(exp_name, jobs):
         job_name = get_job_name(job)
         result_dir = RESULTS_DIR / exp_name / job_name
         if result_dir.exists():
-            print(f"WARRNING skip\t {job}")
+            print(f"WARNING skip\t {job_name}")
         else:
             os.makedirs(result_dir)
 
@@ -107,7 +107,7 @@ fanout_exp = [
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE"]
     for num_threads in [32]
-    for fanout in [2**i for i in range(2, 11)]
+    for fanout in [2**i for i in range(2, 15)]
 ]
 
 contention_exp = [
@@ -152,7 +152,7 @@ hotset_exp = [
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [32]
-    for zipf_theta in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+    for zipf_theta in [i / 10 for i in range(11)]
 ]
 
 
