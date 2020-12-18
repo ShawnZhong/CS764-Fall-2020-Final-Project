@@ -121,7 +121,7 @@ def plot_scalability_1():
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["CC_ALG"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
-        data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
+        data_func=lambda items: {e["THREAD_CNT"]: compute_y(e) for e in items},
         subplot_func=subplot_func,
     )
 
@@ -145,7 +145,7 @@ def plot_scalability_2():
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['CC_ALG']}",
-        data_func=lambda items: {e["CORE_CNT"]: compute_y(e) for e in items},
+        data_func=lambda items: {e["THREAD_CNT"]: compute_y(e) for e in items},
         subplot_func=subplot_func,
     )
 

@@ -34,7 +34,7 @@ def execute(cmd, out_path, err_path):
     return p.returncode, out_str, err_str
 
 
-def test_compile(name, job, result_dir):
+def test_compile(job_name, job, result_dir):
     os.system("cp " + CFG_STD + " " + CFG_CURR)
     for param, value in job.items():
         pattern = r"\#define\s" + re.escape(param) + r".*"
@@ -48,12 +48,12 @@ def test_compile(name, job, result_dir):
     )
 
     if ret != 0:
-        print(f"ERROR in compiling job {name}")
+        print(f"ERROR in compiling job {job_name}")
     else:
-        print(f"PASS compile\t {name}")
+        print(f"PASS compile\t {job_name}")
 
 
-def test_run(name, job, result_dir):
+def test_run(job_name, job, result_dir):
     _, stdout, _ = execute(
         f"./rundb -o {result_dir / 'result.txt'}",
         out_path=result_dir / "run.out",
@@ -61,9 +61,9 @@ def test_run(name, job, result_dir):
     )
 
     if "PASS" in stdout:
-        print(f"PASS execution\t {name}")
+        print(f"PASS execution\t {job_name}")
     else:
-        print(f"FAILED execution. {job}")
+        print(f"FAILED execution. {job_name}")
 
 
 def get_job_name(job):
@@ -85,7 +85,7 @@ def run_exp(exp_name, jobs):
 scalability_exp = [
     {
         "WORKLOAD": workload,
-        "CORE_CNT": num_threads,
+        "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
     }
@@ -98,7 +98,7 @@ scalability_exp = [
 fanout_exp = [
     {
         "WORKLOAD": workload,
-        "CORE_CNT": num_threads,
+        "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
         "BTREE_ORDER": fanout,
@@ -113,7 +113,7 @@ fanout_exp = [
 contention_exp = [
     {
         "WORKLOAD": workload,
-        "CORE_CNT": num_threads,
+        "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
         "NUM_WH": num_wh,
@@ -128,7 +128,7 @@ contention_exp = [
 rw_exp = [
     {
         "WORKLOAD": workload,
-        "CORE_CNT": num_threads,
+        "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
         "PERC_PAYMENT": rw_ratio,
@@ -143,7 +143,7 @@ rw_exp = [
 hotset_exp = [
     {
         "WORKLOAD": workload,
-        "CORE_CNT": num_threads,
+        "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
         "ZIPF_THETA": zipf_theta,
@@ -155,6 +155,21 @@ hotset_exp = [
     for zipf_theta in [i / 10 for i in range(10)]
 ]
 
+latch_exp = [
+    {
+        "WORKLOAD": workload,
+        "THREAD_CNT": num_threads,
+        "CC_ALG": alg,
+        "INDEX_STRUCT": index,
+        "ENABLE_LATCH": latch,
+    }
+    for workload in ["YCSB", "TPCC"]
+    for alg in ["NO_WAIT"]
+    for index in ["IDX_BTREE", "IDX_HASH"]
+    for num_threads in [1]
+    for latch in ["true", "false"]
+]
+
 
 def main():
     run_exp("scalability", scalability_exp)
@@ -162,6 +177,7 @@ def main():
     run_exp("contention", contention_exp)
     run_exp("rw", rw_exp)
     run_exp("hotset", hotset_exp)
+    run_exp("latch", latch_exp)
 
 
 if __name__ == "__main__":
