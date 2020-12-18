@@ -101,7 +101,7 @@ def plot(
 
 
 def compute_y(e):
-    return e["time_index"] / e["txn_cnt"] * 10 ** 6
+    return e["time_index"] / e["txn_cnt"] / e["THREAD_CNT"] * 10 ** 6
 
 def subplot_by_index_struct(items):
     return ["IDX_BTREE", "IDX_HASH"].index(items[0]["INDEX_STRUCT"]) + 1
@@ -216,7 +216,7 @@ def plot_contention():
 
 def main():
     plot_scalability_1()
-    # plot_scalability_2()
+    plot_scalability_2()
     # plot_rw()
     # plot_fanout()
     # plot_hotset()
