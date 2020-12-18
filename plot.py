@@ -63,7 +63,8 @@ def plot(
     figname="plot",
     figsize=(16, 10),
     subplot_size=(1, 1),
-    x_log_scale=False,
+    x_log_base=None,
+    y_log_base=None,
 ):
     res = list(read_results(results_dir))
 
@@ -81,16 +82,20 @@ def plot(
             label=label_func(items) if label_func else None,
             marker="o",
         )
-        if x_log_scale:
-            plt.xscale("log", basex=2)
+        if x_log_base:
+            plt.xscale("log", basex=x_log_base)
+        if y_log_base:
+            plt.yscale("log", basey=y_log_base)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title_func(items))
 
     if label_func:
-        # move to the last subplot in the first row to plot the legend
-        plt.subplot(*subplot_size, subplot_size[1])
-        plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+        # # move to the last subplot in the first row to plot the legend
+        # plt.subplot(*subplot_size, subplot_size[1])
+        # plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
+        plt.subplot(*subplot_size, subplot_size[0] * subplot_size[1])
+        plt.legend()
 
     plt.savefig(RESULTS_DIR / f"{figname}.png")
 
@@ -116,9 +121,9 @@ def plot_scalability_1():
     plot(
         results_dir=RESULTS_DIR / "scalability",
         figname="scalability-1",
-        figsize=(16, 4),
-        subplot_size=(1, 4),
-        x_log_scale=True,
+        figsize=(10, 10),
+        subplot_size=(2, 2),
+        x_log_base=2,
         xlabel="Number of Threads",
         ylabel="Average Index Time per Transaction (ms)",
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
@@ -145,7 +150,7 @@ def plot_scalability_2():
         figname="scalability-2",
         figsize=(20, 8),
         subplot_size=(2, 5),
-        x_log_scale=True,
+        x_log_base=2,
         groupby_keys=["CC_ALG", "INDEX_STRUCT", "WORKLOAD"],
         label_func=lambda items: items[0]["INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['CC_ALG']}",
@@ -173,7 +178,7 @@ def plot_fanout():
         results_dir=RESULTS_DIR / "fanout",
         figname="fanout",
         figsize=(7, 5),
-        x_log_scale=True,
+        x_log_base=2,
         xlabel="B-Tree Order",
         ylabel="Average Index Time per Transaction (ms)",
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
@@ -211,11 +216,11 @@ def plot_contention():
 
 def main():
     plot_scalability_1()
-    plot_scalability_2()
-    plot_rw()
-    plot_fanout()
-    plot_hotset()
-    plot_contention()
+    # plot_scalability_2()
+    # plot_rw()
+    # plot_fanout()
+    # plot_hotset()
+    # plot_contention()
     pass
 
 
