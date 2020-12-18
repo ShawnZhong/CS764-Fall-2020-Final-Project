@@ -68,9 +68,7 @@ def test_run(name, job, result_dir):
 def main():
     algs = ["NO_WAIT"]
     indices = ["IDX_BTREE", "IDX_HASH"]
-    num_threads_lst = [1]
-    for i in range(2,256, 20):
-        num_threads_lst.append(i)
+    num_threads_lst = [2**i for i in range(9)]
     
     workloads = ["TPCC"]
     rw_ratio_list = [i/10 for i in range(11)]
