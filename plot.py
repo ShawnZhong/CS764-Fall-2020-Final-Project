@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from pathlib import Path
 from collections import defaultdict
 
@@ -50,9 +52,9 @@ def group_by(res, keys):
 
 
 def plot(
-    results_dir,
     title_func,
     data_func,
+    results_dir,
     subplot_func=None,
     groupby_keys=None,
     label_func=None,
@@ -90,7 +92,7 @@ def plot(
         plt.subplot(*subplot_size, subplot_size[1])
         plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1))
 
-    plt.savefig(results_dir / f"{figname}.png")
+    plt.savefig(RESULTS_DIR / f"{figname}.png")
 
 
 def compute_y(e):
