@@ -54,40 +54,49 @@ def test_compile(name, job, result_dir):
 
 
 def test_run(name, job, result_dir):
-    cmd = f"./rundb -o {result_dir / 'result.txt'}"
     _, stdout, _ = execute(
-        cmd, out_path=result_dir / "run.out", err_path=result_dir / "run.err"
+        f"./rundb -o {result_dir / 'result.txt'}",
+        out_path=result_dir / "run.out",
+        err_path=result_dir / "run.err",
     )
 
     if "PASS" in stdout:
         print(f"PASS execution\t {name}")
     else:
-        print(f"FAILED execution. cmd = {cmd}")
+        print(f"FAILED execution. {job}")
+
+
+def get_job_name(job):
+    return ",".join(f"{k}={v}" for k, v in job.items())
+
 
 def run_exp(exp_name, jobs):
-    for name, job in jobs.items():
-        result_dir = RESULTS_DIR / exp_name / name
-        os.makedirs(result_dir, exist_ok=True)
+    for job in jobs:
+        job_name = get_job_name(job)
+        result_dir = RESULTS_DIR / exp_name / job_name
+        if result_dir.exists():
+            print(f"WARRNING skip\t {job}")
+        else:
+            os.makedirs(result_dir)
 
-        test_compile(name, job, result_dir)
-        test_run(name, job, result_dir)
+            test_compile(job_name, job, result_dir)
+            test_run(job_name, job, result_dir)
 
-scalibility_exp = {
-    f"{workload},{alg},{index},{num_threads}": {
+scalibility_exp = [
+    {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
     }
     for workload in ["YCSB"]
-    for alg in ["NO_WAIT"]
-    # for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
+    for alg in ["DL_DETECT", "NO_WAIT", "HEKATON", "SILO", "TICTOC"]
     for index in ["IDX_BTREE", "IDX_HASH"]
-    for num_threads in list(range(5, 100, 5))
-}
+    for num_threads in range(5, 100, 5)
+]
 
-fanout_exp = {
-    f"{workload},{alg},{index},{num_threads},{fanout}": {
+fanout_exp = [
+    {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
@@ -98,11 +107,11 @@ fanout_exp = {
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE"]
     for num_threads in [32]
-    for fanout in [4, 8, 16, 32, 64, 128, 256]
-}
+    for fanout in [2**i for i in range(2, 11)]
+]
 
-contention_exp = {
-    f"{workload},{alg},{index},{num_threads},{num_wh}": {
+contention_exp = [
+    {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
@@ -113,11 +122,11 @@ contention_exp = {
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [32]
-    for num_wh in [i for i in range(1,21)]
-}
+    for num_wh in [i for i in range(1, 21)]
+]
 
-rw_exp = {
-    f"{workload},{alg},{index},{num_threads},{rw_ratio}": {
+rw_exp = [
+    {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
@@ -128,11 +137,11 @@ rw_exp = {
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [32]
-    for rw_ratio in [i/10 for i in range(11)]
-}
+    for rw_ratio in [i / 10 for i in range(11)]
+]
 
-hotset_exp = {
-    f"{workload},{alg},{index},{num_threads},{zipf_theta}": {
+hotset_exp = [
+    {
         "WORKLOAD": workload,
         "CORE_CNT": num_threads,
         "CC_ALG": alg,
@@ -144,15 +153,15 @@ hotset_exp = {
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [32]
     for zipf_theta in [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-}
+]
 
 
 def main():
     run_exp("scalibility", scalibility_exp)
-    # run_exp("fanout", fanout_exp)
-    # run_exp("contention", contention_exp)
-    # run_exp("rw", rw_exp)
-    # run_exp("hotset", hotset_exp)
+    run_exp("fanout", fanout_exp)
+    run_exp("contention", contention_exp)
+    run_exp("rw", rw_exp)
+    run_exp("hotset", hotset_exp)
 
 
 if __name__ == "__main__":
