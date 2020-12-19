@@ -192,10 +192,10 @@ def plot_fanout():
 def plot_hotset():
     plot(
         results_dir=RESULTS_DIR / "hotset",
-        figname="hotset",
+        figname="hotspot",
         figsize=(10, 5),
         subplot_size=(1, 2),
-        xlabel="Hotset Percentage",
+        xlabel="Hotspot Percentage",
         ylabel="Average Index Time per Transaction (ms)",
         groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
