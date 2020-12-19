@@ -132,7 +132,8 @@ rw_exp = [
         "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
-        "PERC_PAYMENT": rw_ratio,
+        "READ_PERC": rw_ratio,
+        "WRITE_PERC": 1-rw_ratio,
     }
     for workload in ["TPCC"]
     for alg in ["NO_WAIT"]
@@ -173,12 +174,12 @@ latch_exp = [
 
 
 def main():
-    run_exp("scalability", scalability_exp)
-    run_exp("fanout", fanout_exp)
-    run_exp("contention", contention_exp)
+    # run_exp("scalability", scalability_exp)
+    # run_exp("fanout", fanout_exp)
+    # run_exp("contention", contention_exp)
     run_exp("rw", rw_exp)
-    run_exp("hotset", hotset_exp)
-    run_exp("latch", latch_exp)
+    # run_exp("hotset", hotset_exp)
+    # run_exp("latch", latch_exp)
 
 
 if __name__ == "__main__":
