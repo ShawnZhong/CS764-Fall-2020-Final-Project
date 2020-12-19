@@ -28,11 +28,13 @@ bool IndexHash::index_exist(idx_key_t key) {
 
 void 
 IndexHash::get_latch(BucketHeader * bucket) {
+	if (!ENABLE_LATCH) return;
 	while (!ATOM_CAS(bucket->locked, false, true)) {}
 }
 
 void 
 IndexHash::release_latch(BucketHeader * bucket) {
+	if (!ENABLE_LATCH) return;
 	bool ok = ATOM_CAS(bucket->locked, true, false);
 	assert(ok);
 }
