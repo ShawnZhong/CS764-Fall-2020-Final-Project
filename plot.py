@@ -4,6 +4,7 @@ from pathlib import Path
 from collections import defaultdict
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 RESULTS_DIR = Path("results")
 
@@ -72,10 +73,10 @@ def plot(
 
     for key, items in group_by(res, groupby_keys):
         data = dict(sorted(data_func(items).items()))
-        print(key, " ".join(f"{e:.1f}" for e in data.values()))
+        print(key, " ".join(f"{e:.2f}" for e in data.values()), np.var(list(data.values())))
 
-        if subplot_func:
-            plt.subplot(*subplot_size, subplot_func(items))
+        subplot_id = subplot_func(items) if subplot_func else 1
+        plt.subplot(*subplot_size, subplot_id)
         plt.plot(
             data.keys(),
             data.values(),
@@ -87,7 +88,9 @@ def plot(
         if y_log_base:
             plt.yscale("log", basey=y_log_base)
         plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+        # only plot the y label for the very left subplot
+        if (subplot_id - 1) % subplot_size[1] == 0:
+            plt.ylabel(ylabel)
         plt.title(title_func(items))
 
     if label_func:
@@ -97,7 +100,7 @@ def plot(
         plt.subplot(*subplot_size, subplot_size[0] * subplot_size[1])
         plt.legend()
 
-    plt.savefig(RESULTS_DIR / f"{figname}.png")
+    plt.savefig(RESULTS_DIR / f"{figname}.png", bbox_inches='tight')
 
 
 def compute_y(e):
@@ -165,11 +168,11 @@ def plot_rw():
         figname="rw",
         figsize=(8, 4),
         subplot_size=(1, 2),
-        xlabel="Read/Write Ratio",
+        xlabel="Read Percentage",
         ylabel="Average Index Time per Transaction (ms)",
         groupby_keys=["WORKLOAD", "INDEX_STRUCT"],
         title_func=lambda items: f"{items[0]['WORKLOAD']} {items[0]['INDEX_STRUCT']}",
-        data_func=lambda items: {e["PERC_PAYMENT"]: compute_y(e) for e in items},
+        data_func=lambda items: {e["READ_PERC"]: compute_y(e) for e in items},
         subplot_func=subplot_by_index_struct,
     )
 
@@ -217,10 +220,10 @@ def plot_contention():
 def main():
     plot_scalability_1()
     plot_scalability_2()
-    # plot_rw()
-    # plot_fanout()
-    # plot_hotset()
-    # plot_contention()
+    plot_rw()
+    plot_fanout()
+    plot_hotset()
+    plot_contention()
     pass
 
 

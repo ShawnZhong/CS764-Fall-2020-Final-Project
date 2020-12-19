@@ -132,14 +132,14 @@ rw_exp = [
         "THREAD_CNT": num_threads,
         "CC_ALG": alg,
         "INDEX_STRUCT": index,
-        "READ_PERC": rw_ratio,
-        "WRITE_PERC": 1-rw_ratio,
+        "READ_PERC": round(read_perc, 1),
+        "WRITE_PERC": round(1 - read_perc, 1),
     }
-    for workload in ["TPCC"]
+    for workload in ["YCSB"]
     for alg in ["NO_WAIT"]
     for index in ["IDX_BTREE", "IDX_HASH"]
     for num_threads in [1]
-    for rw_ratio in [i / 10 for i in range(11)]
+    for read_perc in [0.1 * i for i in range(11)]
 ]
 
 hotset_exp = [
